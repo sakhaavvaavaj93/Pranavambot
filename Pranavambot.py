@@ -397,9 +397,9 @@ async def pause(_, message):
     chat_id = message.chat.id
     if chat_id in QUEUE:
         try:
-            await app.pause_stream(chat_id)
-except Exception as e:
-    return await m.edit(str(e))        
+           await app.pause_stream(chat_id)
+        except Exception as e:
+            return await m.edit(str(e))
         
         
 @bot.on_message(filters.command("resume") & filters.group)
@@ -409,9 +409,9 @@ async def resume(_, message):
     chat_id = message.chat.id
     if chat_id in QUEUE:
         try:
-            await app.resume_stream(chat_id)
-except Exception as e:
-    return await m.edit(str(e))        
+           await app.resume_stream(chat_id)
+        except Exception as e:
+            return await m.edit(str(e))
 
 
 @bot.on_message(filters.command("restart"))
