@@ -62,16 +62,16 @@ HELP_TEXT = """<b>» ᴍᴀɪɴ ᴄᴏᴍᴍᴀɴᴅꜱ «</b>
 
 🥵 <b><u>ᴍᴀᴅᴇ ʙʏ ᑭᖇᎥƳᗝ</u></b> 🥵"""
 
-START_IMG = "https://telegra.ph/file/16a91350a3c12e914e14c.jpg"
+START_IMG = "http://telegra.ph/file/5c95a9218c5bfffcf2e6e.jpg"
 
 START_BUTTONS = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton(
-                        "🥺 ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ​ 🥺", url="https://t.me/bcs_musicbot?startgroup=true")
+                        "🥺 ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ​ 🥺", url="https://t.me/Stenzle_MariaGbot?startgroup=true")
         ],
         [   
-            InlineKeyboardButton("🥀 ᴍᴀɪɴᴛᴀɪɴᴇʀ 🥀", user_id=2007865157),
+            InlineKeyboardButton("🥀 ᴍᴀɪɴᴛᴀɪɴᴇʀ 🥀", user_id=5683104617),
             InlineKeyboardButton("💔 sᴜᴩᴩᴏʀᴛ​ 💔", url=f"https://t.me/{SUPPORT}")
         ],
     ]
