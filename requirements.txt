@@ -19,3 +19,4 @@ youtube-search-python
 pyrogram==1.4.16
 env
 youtube_dl
+pytube
