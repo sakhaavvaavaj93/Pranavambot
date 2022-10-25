@@ -62,18 +62,21 @@ HELP_TEXT = """<b>» ᴍᴀɪɴ ᴄᴏᴍᴍᴀɴᴅꜱ «</b>
 
 🥵 <b><u>ᴍᴀᴅᴇ ʙʏ ᑭᖇᎥƳᗝ</u></b> 🥵"""
 
-START_IMG = "http://telegra.ph/file/5c95a9218c5bfffcf2e6e.jpg"
+START_IMG = "http://telegra.ph/file/af85af6b4c54f135d3c3b.jpg"
 
 START_BUTTONS = InlineKeyboardMarkup(
     [
         [
             InlineKeyboardButton(
-                        "🥺 ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ​ 🥺", url="https://t.me/Stenzle_MariaGbot?startgroup=true")
+                        "🥺 ᴀᴅᴅ ᴍᴇ ʙᴀʙʏ​ 🥺", url="https://t.me/bcs_musicbot?startgroup=true")
         ],
         [   
             InlineKeyboardButton("🥀 ᴍᴀɪɴᴛᴀɪɴᴇʀ 🥀", user_id=5683104617),
             InlineKeyboardButton("💔 sᴜᴩᴩᴏʀᴛ​ 💔", url=f"https://t.me/{SUPPORT}")
         ],
+        [
+            InlineKeyboardButton("🙄 sᴏᴜʀᴄᴇ 🙄", url="https://github.com/itspriyo")
+        ]
     ]
 )
 
@@ -133,12 +136,12 @@ async def skip_current_song(chat_id):
                 await app.change_stream(
                     chat_id, AudioVideoPiped(playlink, HighQualityAudio(), hm)
                 )
- #           pop_an_item(chat_id)
- #           await bot.send_photo(chat_id, photo = thumb,
- #                                caption = f"🕕 <b>ᴅᴜʀᴀᴛɪᴏɴ:</b> {duration}",
- #                                reply_markup = BUTTONS)
+            pop_an_item(chat_id)
+            await bot.send_photo(chat_id, photo = thumb,
+                                 caption = f"🕕 <b>ᴅᴜʀᴀᴛɪᴏɴ:</b> {duration}",
+                                 reply_markup = BUTTONS)
             return [title, link, type, duration, thumb]
-#    else:
+    else:
         return 0
 
 
@@ -224,6 +227,35 @@ async def callbacks(_, cq: CallbackQuery):
         return await cq.message.delete()
     if not chat_id in QUEUE:
         return await cq.answer("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
+
+    if data == "pause":
+        try:
+            await app.pause_stream(chat_id)
+            await cq.answer("» ᴛʀᴀᴄᴋ ᴘᴀᴜsᴇᴅ ʙᴀʙʏ.")
+        except:
+            await cq.answer("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
+      
+    elif data == "resume":
+        try:
+            await app.resume_stream(chat_id)
+            await cq.answer("» ᴛʀᴀᴄᴋ ʀᴇsᴜᴍᴇᴅ ʙᴀʙʏ.")
+        except:
+            await cq.answer("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")   
+
+    elif data == "end":
+        await app.leave_group_call(chat_id)
+        clear_queue(chat_id)
+        await cq.answer("» sᴛʀᴇᴀᴍ ᴇɴᴅᴇᴅ ʙᴀʙʏ.")  
+
+    elif data == "skip":
+        op = await skip_current_song(chat_id)
+        if op == 0:
+            await cq.answer("» ǫᴜᴇᴜᴇ ᴇᴍᴘᴛʏ ʙᴀʙʏ..")
+        elif op == 1:
+            await cq.answer("» ǫᴜᴇᴜᴇ ᴇᴍᴘᴛʏ, ᴄʟᴏsᴇᴅ sᴛʀᴇᴀᴍɪɴɢ.")
+        else:
+            await cq.answer("» ᴛʀᴀᴄᴋ sᴋɪᴘᴘᴇᴅ ʙᴀʙʏ.")
+
 
 @bot.on_message(filters.command("start") & filters.private)
 async def start_private(_, message):
@@ -316,16 +348,58 @@ async def video_play(_, message):
         if chat_id in QUEUE:
             position = add_to_queue(chat_id, yt.title, duration, link, playlink, doom, Q, thumb)
             caps = f"» [{yt.title}]({link}) <b>ǫᴜᴇᴜᴇᴅ ᴀᴛ {position}</b> ʙᴀʙʏ \n\n🕕 <b>ᴅᴜʀᴀᴛɪᴏɴ:</b> {duration}"
-            
+            await message.reply_photo(thumb, caption=caps)
+            await m.delete()
+        else:            
             await app.join_group_call(
                 chat_id,
                 damn(playlink),
                 stream_type=StreamType().pulse_stream
             )
             add_to_queue(chat_id, yt.title, duration, link, playlink, doom, Q, thumb)
+            await message.reply_photo(thumb, caption=cap, reply_markup=BUTTONS)
+            await m.delete()
     except Exception as e:
-        return await m.edit(str(e))     
-            
+        return await m.edit(str(e))
+    
+    
+@bot.on_message(filters.command(["stream", "vstream"]) & filters.group)
+@is_admin
+async def stream_func(_, message):
+    await message.delete()
+    state = message.command[0].lower()
+    try:
+        link = message.text.split(None, 1)[1]
+    except:
+        return await message.reply_text(f"<b>Usage:</b> <code>/{state} [link]</code>")
+    chat_id = message.chat.id
+    
+    if state == "stream":
+        damn = AudioPiped
+        emj = "🎵"
+    elif state == "vstream":
+        damn = AudioVideoPiped
+        emj = "🎬"
+    m = await message.reply_text("» ᴘʀᴏᴄᴇssɪɴɢ ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ʙᴀʙʏ...")
+    try:
+        if chat_id in QUEUE:
+            return await m.edit("❗️Please send <code>/end</code> to end voice chat before live streaming.")
+        elif chat_id in LIVE_CHATS:
+            await app.change_stream(
+                chat_id,
+                damn(link)
+            )
+            await m.edit(f"{emj} Started streaming: [Link]({link})", disable_web_page_preview=True)
+        else:    
+            await app.join_group_call(
+                chat_id,
+                damn(link),
+                stream_type=StreamType().pulse_stream)
+            await m.edit(f"{emj} Started streaming: [Link]({link})", disable_web_page_preview=True)
+            LIVE_CHATS.append(chat_id)
+    except Exception as e:
+        return await m.edit(str(e))
+
 
 @bot.on_message(filters.command("skip") & filters.group)
 @is_admin
@@ -364,6 +438,10 @@ async def playlist(_, message):
         chat_queue = get_queue(chat_id)
         if len(chat_queue) == 1:
             await message.delete()
+            await message.reply_text(
+                f"🍒 <b>ᴄᴜʀʀᴇɴᴛʟʏ ᴩʟᴀʏɪɴɢ :</b> [{chat_queue[0][0]}]({chat_queue[0][2]}) | `{chat_queue[0][4]}`",
+                disable_web_page_preview=True,
+            )
         else:
             out = f"<b>📃 ǫᴜᴇᴜᴇ :</b> \n\n🍒 <b>ᴩʟᴀʏɪɴɢ :</b> [{chat_queue[0][0]}]({chat_queue[0][2]}) | `{chat_queue[0][4]}` \n"
             l = len(chat_queue)
@@ -372,7 +450,9 @@ async def playlist(_, message):
                 link = chat_queue[x][2]
                 type = chat_queue[x][4]
                 out = out + "\n" + f"<b>» {x}</b> - [{title}]({link}) | `{type}` \n"
-            
+            await message.reply_text(out, disable_web_page_preview=True)
+    else:
+        await message.reply_text("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
     
 
 @bot.on_message(filters.command(["end", "stop"]) & filters.group)
@@ -383,11 +463,14 @@ async def end(_, message):
     if chat_id in LIVE_CHATS:
         await app.leave_group_call(chat_id)
         LIVE_CHATS.remove(chat_id)
-        
+        return await message.reply_text("» sᴛʀᴇᴀᴍ ᴇɴᴅᴇᴅ ʙᴀʙʏ.")
         
     if chat_id in QUEUE:
         await app.leave_group_call(chat_id)
         clear_queue(chat_id)
+        await message.reply_text("» sᴛʀᴇᴀᴍ ᴇɴᴅᴇᴅ ʙᴀʙʏ.")
+    else:
+        await message.reply_text("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
         
 
 @bot.on_message(filters.command("pause") & filters.group)
@@ -397,9 +480,12 @@ async def pause(_, message):
     chat_id = message.chat.id
     if chat_id in QUEUE:
         try:
-           await app.pause_stream(chat_id)
-        except Exception as e:
-            return await m.edit(str(e))
+            await app.pause_stream(chat_id)
+            await message.reply_text("» ᴛʀᴀᴄᴋ ᴘᴀᴜsᴇᴅ ʙᴀʙʏ.")
+        except:
+            await message.reply_text("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
+    else:
+        await message.reply_text("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
         
         
 @bot.on_message(filters.command("resume") & filters.group)
@@ -409,9 +495,12 @@ async def resume(_, message):
     chat_id = message.chat.id
     if chat_id in QUEUE:
         try:
-           await app.resume_stream(chat_id)
-        except Exception as e:
-            return await m.edit(str(e))
+            await app.resume_stream(chat_id)
+            await message.reply_text("» ᴛʀᴀᴄᴋ ʀᴇsᴜᴍᴇᴅ ʙᴀʙʏ.")
+        except:
+            await message.reply_text("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
+    else:
+        await message.reply_text("» ɴᴏᴛʜɪɴɢ ɪs ᴩʟᴀʏɪɴɢ.")
 
 
 @bot.on_message(filters.command("restart"))
@@ -420,7 +509,7 @@ async def restart(_, message):
     if user_id != OWNER_ID:
         return
     await message.reply_text("» <i>ʀᴇsᴛᴀʀᴛɪɴɢ ʙᴀʙʏ...</i>")
-    os.system(f"kill -9 {os.getpid()} && python3 pranavambot.py")
+    os.system(f"kill -9 {os.getpid()} && python3 app.py")
             
 
 app.start()
