@@ -1,1 +1,1 @@
-worker: python3 pranavambot.py
+worker: python3 Pranavambot.py
