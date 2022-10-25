@@ -323,6 +323,8 @@ async def video_play(_, message):
                 stream_type=StreamType().pulse_stream
             )
             add_to_queue(chat_id, yt.title, duration, link, playlink, doom, Q, thumb)
+     except Exception as e:
+        return await m.edit(str(e))     
             
 
 @bot.on_message(filters.command("skip") & filters.group)
