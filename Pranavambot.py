@@ -133,13 +133,13 @@ async def skip_current_song(chat_id):
                 await app.change_stream(
                     chat_id, AudioVideoPiped(playlink, HighQualityAudio(), hm)
                 )
-  #          pop_an_item(chat_id)
-#            await bot.send_photo(chat_id, photo = thumb,
+ #           pop_an_item(chat_id)
+ #           await bot.send_photo(chat_id, photo = thumb,
  #                                caption = f"🕕 <b>ᴅᴜʀᴀᴛɪᴏɴ:</b> {duration}",
  #                                reply_markup = BUTTONS)
- #           return [title, link, type, duration, thumb]
+            return [title, link, type, duration, thumb]
 #    else:
- #       return 0
+        return 0
 
 
 async def skip_item(chat_id, lol):
